@@ -1,0 +1,17 @@
+package com.lavanya.aiproductfinder.repository;
+
+import com.lavanya.aiproductfinder.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    List<Product> findByCategory(String category);
+
+    List<Product> findByBrand(String brand);
+
+    List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
+
+    List<Product> findByTitleContainingIgnoreCase(String keyword);
+}
