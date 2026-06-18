@@ -1,8 +1,10 @@
 package com.lavanya.aiproductfinder.controller;
 
+import com.lavanya.aiproductfinder.dto.WishlistRequest;
 import com.lavanya.aiproductfinder.entity.Wishlist;
 import com.lavanya.aiproductfinder.service.WishlistService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,41 +15,49 @@ public class WishlistController {
 
     private final WishlistService wishlistService;
 
-    public WishlistController(WishlistService wishlistService) {
+    public WishlistController(
+            WishlistService wishlistService) {
+
         this.wishlistService = wishlistService;
     }
 
     @PostMapping
-    public ResponseEntity<Wishlist> addToWishlist(
-            @RequestParam Long userId,
-            @RequestParam Long productId) {
+    public ResponseEntity<Wishlist> saveWishlist(
+            @RequestBody WishlistRequest request,
+            Authentication authentication) {
+
+        String email = authentication.getName();
 
         Wishlist wishlist =
-                wishlistService.addToWishlist(
-                        userId,
-                        productId
+                wishlistService.saveWishlist(
+                        email,
+                        request.getQuery(),
+                        request.getRecommendation()
                 );
 
         return ResponseEntity.ok(wishlist);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Wishlist>> getUserWishlist(
-            @PathVariable Long userId) {
+    @GetMapping
+    public ResponseEntity<List<Wishlist>>
+    getCurrentUserWishlist(
+            Authentication authentication) {
+
+        String email = authentication.getName();
 
         return ResponseEntity.ok(
-                wishlistService.getUserWishlist(userId)
+                wishlistService.getWishlist(email)
         );
     }
 
     @DeleteMapping("/{wishlistId}")
-    public ResponseEntity<String> removeFromWishlist(
+    public ResponseEntity<String> removeWishlist(
             @PathVariable Long wishlistId) {
 
-        wishlistService.removeFromWishlist(wishlistId);
+        wishlistService.removeWishlist(wishlistId);
 
         return ResponseEntity.ok(
-                "Product removed from wishlist successfully"
+                "Wishlist item removed successfully"
         );
     }
 }

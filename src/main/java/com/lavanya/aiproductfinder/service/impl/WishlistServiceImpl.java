@@ -1,11 +1,8 @@
 package com.lavanya.aiproductfinder.service.impl;
 
-import com.lavanya.aiproductfinder.entity.Product;
 import com.lavanya.aiproductfinder.entity.User;
 import com.lavanya.aiproductfinder.entity.Wishlist;
-import com.lavanya.aiproductfinder.exception.ProductNotFoundException;
 import com.lavanya.aiproductfinder.exception.UserNotFoundException;
-import com.lavanya.aiproductfinder.repository.ProductRepository;
 import com.lavanya.aiproductfinder.repository.UserRepository;
 import com.lavanya.aiproductfinder.repository.WishlistRepository;
 import com.lavanya.aiproductfinder.service.WishlistService;
@@ -15,71 +12,57 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class WishlistServiceImpl implements WishlistService {
+public class WishlistServiceImpl
+        implements WishlistService {
 
     private final WishlistRepository wishlistRepository;
     private final UserRepository userRepository;
-    private final ProductRepository productRepository;
 
     public WishlistServiceImpl(
             WishlistRepository wishlistRepository,
-            UserRepository userRepository,
-            ProductRepository productRepository) {
+            UserRepository userRepository) {
 
         this.wishlistRepository = wishlistRepository;
         this.userRepository = userRepository;
-        this.productRepository = productRepository;
     }
 
     @Override
-    public Wishlist addToWishlist(
-            Long userId,
-            Long productId) {
+    public Wishlist saveWishlist(
+            String email,
+            String query,
+            String recommendation) {
 
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findByEmail(email)
                 .orElseThrow(() ->
                         new UserNotFoundException(
-                                "User not found with id: " + userId
+                                "User not found"
                         ));
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() ->
-                        new ProductNotFoundException(
-                                "Product not found with id: " + productId
-                        ));
-
-        if (wishlistRepository
-                .existsByUserIdAndProductId(userId, productId)) {
-
-            throw new RuntimeException(
-                    "Product already exists in wishlist"
-            );
-        }
-
-        Wishlist wishlist = Wishlist.builder()
-                .user(user)
-                .product(product)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Wishlist wishlist =
+                Wishlist.builder()
+                        .user(user)
+                        .query(query)
+                        .recommendation(recommendation)
+                        .createdAt(LocalDateTime.now())
+                        .build();
 
         return wishlistRepository.save(wishlist);
     }
-
     @Override
-    public List<Wishlist> getUserWishlist(Long userId) {
+    public void removeWishlist(
+            Long wishlistId) {
 
-        return wishlistRepository.findByUserId(userId);
+        wishlistRepository.deleteById(
+                wishlistId
+        );
     }
 
     @Override
-    public void removeFromWishlist(Long wishlistId) {
+    public List<Wishlist> getWishlist(
+            String email) {
 
-        Wishlist wishlist = wishlistRepository.findById(wishlistId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Wishlist item not found"
-                        ));
-
-        wishlistRepository.delete(wishlist);
+        return wishlistRepository
+                .findByUserEmail(email);
     }
 }

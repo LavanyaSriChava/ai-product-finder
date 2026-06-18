@@ -8,12 +8,7 @@ import java.util.List;
 public interface WishlistRepository
         extends JpaRepository<Wishlist, Long> {
 
-    List<Wishlist> findByUserId(Long userId);
-
-    List<Wishlist> findByProductId(Long productId);
-
-    boolean existsByUserIdAndProductId(
-            Long userId,
-            Long productId
+    List<Wishlist> findByUserEmail(
+            String email
     );
 }

@@ -6,16 +6,17 @@ import java.util.List;
 
 public interface WishlistService {
 
-    Wishlist addToWishlist(
-            Long userId,
-            Long productId
+    Wishlist saveWishlist(
+            String email,
+            String query,
+            String recommendation
     );
 
-    List<Wishlist> getUserWishlist(
-            Long userId
+    List<Wishlist> getWishlist(
+            String email
     );
 
-    void removeFromWishlist(
+    void removeWishlist(
             Long wishlistId
     );
 }

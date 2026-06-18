@@ -31,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new UserAlreadyExistsException("Email already exists");
@@ -45,11 +45,15 @@ public class AuthServiceImpl implements AuthService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        return "User registered successfully";
+        String token =
+                jwtUtil.generateToken(savedUser.getEmail());
+        return new AuthResponse(
+                token,
+                savedUser.getRole().name()
+        );
     }
-
     @Override
     public AuthResponse login(LoginRequest request) {
 
@@ -69,6 +73,9 @@ public class AuthServiceImpl implements AuthService {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return new AuthResponse(token);
+        return new AuthResponse(
+                token,
+                user.getRole().name()
+        );
     }
 }
