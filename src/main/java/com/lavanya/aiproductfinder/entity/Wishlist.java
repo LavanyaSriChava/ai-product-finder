@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "wishlist")
@@ -19,12 +20,20 @@ public class Wishlist {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false
+    )
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @Column(nullable = false)
+    private String query;
+
+    @Column(
+            nullable = false,
+            columnDefinition = "TEXT"
+    )
+    private String recommendation;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

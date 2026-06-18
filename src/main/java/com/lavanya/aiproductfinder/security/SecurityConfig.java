@@ -27,6 +27,7 @@ public class SecurityConfig {
             throws Exception {
 
         http
+                .cors(cors -> {})
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
@@ -43,18 +44,15 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
-                        // ADMIN ONLY
                         .requestMatchers("/api/products/import")
                         .hasRole("ADMIN")
 
                         .requestMatchers("/api/analytics/**")
                         .hasRole("ADMIN")
 
-                        // ALL LOGGED-IN USERS
                         .anyRequest()
                         .authenticated()
                 )
-
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

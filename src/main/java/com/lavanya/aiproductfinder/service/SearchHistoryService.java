@@ -6,12 +6,21 @@ import java.util.List;
 
 public interface SearchHistoryService {
 
-    SearchHistory saveSearch(
-            Long userId,
+    void saveSearch(
+            String email,
             String query
     );
 
-    List<SearchHistory> getUserSearchHistory(
-            Long userId
+    List<SearchHistory> getCurrentUserHistory(
+            String email
+    );
+
+    void deleteHistory(
+            String email,
+            Long id
+    );
+
+    void clearHistory(
+            String email
     );
 }

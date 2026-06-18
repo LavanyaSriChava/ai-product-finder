@@ -6,6 +6,7 @@ import com.lavanya.aiproductfinder.exception.UserNotFoundException;
 import com.lavanya.aiproductfinder.repository.SearchHistoryRepository;
 import com.lavanya.aiproductfinder.repository.UserRepository;
 import com.lavanya.aiproductfinder.service.SearchHistoryService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -27,14 +28,15 @@ public class SearchHistoryServiceImpl
     }
 
     @Override
-    public SearchHistory saveSearch(
-            Long userId,
+    public void saveSearch(
+            String email,
             String query) {
 
-        User user = userRepository.findById(userId)
+        User user = userRepository
+                .findByEmail(email)
                 .orElseThrow(() ->
                         new UserNotFoundException(
-                                "User not found with id: " + userId
+                                "User not found"
                         ));
 
         SearchHistory searchHistory =
@@ -44,13 +46,68 @@ public class SearchHistoryServiceImpl
                         .searchedAt(LocalDateTime.now())
                         .build();
 
-        return searchHistoryRepository.save(searchHistory);
+        searchHistoryRepository.save(searchHistory);
+    }@Override
+    @Transactional
+    public void deleteHistory(
+            String email,
+            Long id) {
+
+        User user = userRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found"
+                        ));
+
+        SearchHistory history =
+                searchHistoryRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new RuntimeException(
+                                        "History not found"
+                                ));
+
+        if (!history.getUser()
+                .getId()
+                .equals(user.getId())) {
+
+            throw new RuntimeException(
+                    "Unauthorized"
+            );
+        }
+
+        searchHistoryRepository
+                .delete(history);
     }
 
     @Override
-    public List<SearchHistory> getUserSearchHistory(
-            Long userId) {
+    public void clearHistory(
+            String email) {
 
-        return searchHistoryRepository.findByUserId(userId);
+        User user = userRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found"
+                        ));
+
+        searchHistoryRepository
+                .deleteByUser(user);
+    }
+
+    @Override
+    public List<SearchHistory> getCurrentUserHistory(
+            String email) {
+
+        User user = userRepository
+                .findByEmail(email)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found"
+                        ));
+
+        return searchHistoryRepository
+                .findByUserOrderBySearchedAtDesc(user);
     }
 }

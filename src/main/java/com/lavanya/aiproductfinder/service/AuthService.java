@@ -6,7 +6,6 @@ import com.lavanya.aiproductfinder.dto.RegisterRequest;
 
 public interface AuthService {
 
-    String register(RegisterRequest request);
-
+    AuthResponse register(RegisterRequest request);
     AuthResponse login(LoginRequest request);
 }
