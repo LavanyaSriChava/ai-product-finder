@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+
+  postgres:
+
+    image: postgres:latest
+
+    container_name: postgres-db
+
+    restart: always
+
+    environment:
+      POSTGRES_DB: ai_product_finder
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+  backend:
+
+    build: .
+
+    container_name: ai-product-finder
+
+    depends_on:
+      - postgres
+
+    ports:
+      - "8080:8080"
+
+    environment:
+
+      DB_URL: jdbc:postgresql://postgres:5432/ai_product_finder
+
+      DB_USERNAME: postgres
+
+      DB_PASSWORD: postgres
+
+      JWT_SECRET: mysecretkeymysecretkeymysecretkey123456
+
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+volumes:
+
+  postgres_data:
